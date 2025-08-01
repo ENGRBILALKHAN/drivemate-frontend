@@ -1,351 +1,190 @@
-<!-- Gemini Chat Widget -->
-<div id="gemini-chatbot">
-  <div id="chat-window">
-    <div id="chat-header">
-      <img src="https://www.limoflow.com/limoflow-logo.png" alt="Limoflow Logo" class="chat-logo" />
-      <span>Drive Mate</span>
-      <button id="close-chat" title="Close">&times;</button>
-    </div>
-    <div id="chat-messages"></div>
-    <div id="chat-input">
-      <input type="text" id="message-box" placeholder="Ask something..." autocomplete="off" />
-      <button id="send-btn" title="Send">
-        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" width="20" fill="#fff">
-          <path d="M0 0h24v24H0z" fill="none"/>
-          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-        </svg>
-      </button>
-    </div>
-  </div>
-  <div id="chat-button" title="Chat with Gemini">
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="chatBtnGradient" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#00c6ff"/>
-          <stop offset="100%" stop-color="#007bff"/>
-        </radialGradient>
-      </defs>
-      <circle cx="24" cy="24" r="24" fill="url(#chatBtnGradient)"/>
-      <text x="24" y="33" text-anchor="middle" fill="white" font-size="26" font-family="Arial" font-weight="bold">💬</text>
-    </svg>
-  </div>
-</div>
-
-<style>
-  :root {
-    --brand-primary: #181f2a;
-    --brand-accent: #232b3b;
-    --brand-gradient: linear-gradient(90deg, #232b3b 60%, #181f2a 100%);
-    --chat-user-bg: linear-gradient(90deg, #232b3b 80%, #2d3748 100%);
-    --chat-bot-bg: linear-gradient(90deg, #232b3b 60%, #181f2a 100%);
-    --chat-border: #2d3748;
-    --chat-shadow: 0 12px 28px rgba(24, 31, 42, 0.45);
-    --chat-radius: 18px;
-    --chat-header-height: 56px;
-    --chat-text: #f1f1f1;
-    --chat-secondary: #a0aec0;
-    --chat-input-bg: #232b3b;
-    --chat-input-border: #394150;
-    --chat-btn-gradient: linear-gradient(90deg, #3a8dde 60%, #1e293b 100%);
-    --chat-btn-hover: linear-gradient(90deg, #2563eb 60%, #334155 100%);
-  }
-
-  #gemini-chatbot {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-    z-index: 9999;
-    animation: fadeIn 0.7s;
-    color: var(--chat-text);
-  }
-
-  #chat-button {
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    border-radius: 50%;
-    box-shadow: 0 8px 24px rgba(24, 31, 42, 0.45);
-    transition: transform 0.2s, box-shadow 0.2s;
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 56px;
-    height: 56px;
-  }
-  #chat-button:hover {
-    transform: scale(1.08);
-    box-shadow: 0 12px 36px rgba(24, 31, 42, 0.65);
-  }
-
-  #chat-window {
-    display: none;
-    flex-direction: column;
-    width: 400px;
-    height: 540px;
-    background: #181f2a;
-    border-radius: var(--chat-radius);
-    box-shadow: var(--chat-shadow);
-    overflow: hidden;
-    margin-bottom: 90px;
-    border: 1.5px solid var(--chat-border);
-    animation: popIn 0.4s;
-    position: relative;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes popIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  #chat-header {
-    background: var(--brand-gradient);
-    color: var(--chat-text);
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 600;
-    font-size: 1.15rem;
-    height: var(--chat-header-height);
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    border-top-left-radius: var(--chat-radius);
-    border-top-right-radius: var(--chat-radius);
-    position: relative;
-  }
-  .chat-logo {
-    height: 32px;
-    width: auto;
-    max-height: 36px;
-    margin-right: 10px;
-    border-radius: 8px;
-    background: #232b3b;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    padding: 2px;
-  }
-  #close-chat {
-    background: none;
-    border: none;
-    color: #f1f1f1;
-    font-size: 1.7rem;
-    cursor: pointer;
-    transition: color 0.2s;
-    margin-left: auto;
-    margin-right: -8px;
-    padding: 0 8px;
-    line-height: 1;
-  }
-  #close-chat:hover {
-    color: #00c6ff;
-  }
-
-  #chat-messages {
-    flex: 1;
-    padding: 18px 16px 12px 16px;
-    overflow-y: auto;
-    background: #202736;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    scrollbar-width: thin;
-    scrollbar-color: #394150 #202736;
-  }
-  #chat-messages::-webkit-scrollbar {
-    width: 7px;
-    background: #202736;
-  }
-  #chat-messages::-webkit-scrollbar-thumb {
-    background: #394150;
-    border-radius: 6px;
-  }
-
-  .chat-message {
-    padding: 14px 18px;
-    border-radius: 16px;
-    max-width: 80%;
-    font-size: 15px;
-    line-height: 1.6;
-    white-space: pre-wrap;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    position: relative;
-    transition: background 0.2s;
-    word-break: break-word;
-    color: var(--chat-text);
-  }
-  .user-msg {
-    background: var(--chat-user-bg);
-    align-self: flex-end;
-    color: #e0e7ef;
-    font-weight: 500;
-    border-bottom-right-radius: 4px;
-    border-top-right-radius: 18px;
-    border-top-left-radius: 18px;
-    border-bottom-left-radius: 18px;
-    margin-left: auto;
-    margin-right: 0;
-    border: 1px solid #394150;
-  }
-  .bot-msg {
-    background: var(--chat-bot-bg);
-    align-self: flex-start;
-    color: #e0e7ef;
-    border-bottom-left-radius: 4px;
-    border-top-right-radius: 18px;
-    border-top-left-radius: 18px;
-    border-bottom-right-radius: 18px;
-    margin-right: auto;
-    margin-left: 0;
-    border: 1px solid #232b3b;
-  }
-  .bot-msg.typing::after {
-    content: '...';
-    animation: dots 1s steps(3, end) infinite;
-    margin-left: 4px;
-  }
-  @keyframes dots {
-    0%, 20% { content: '.'; }
-    40% { content: '..'; }
-    60% { content: '...'; }
-    80%, 100% { content: ''; }
-  }
-
-  #chat-input {
-    display: flex;
-    border-top: 1.5px solid var(--chat-border);
-    background: var(--chat-input-bg);
-    padding: 10px 14px;
-    align-items: center;
-    gap: 10px;
-  }
-  #message-box {
-    flex: 1;
-    border: 1.5px solid var(--chat-input-border);
-    padding: 12px 18px;
-    outline: none;
-    border-radius: 9999px;
-    background: #232b3b;
-    color: var(--chat-text);
-    font-size: 15px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    transition: box-shadow 0.2s, border 0.2s;
-  }
-  #message-box:focus {
-    box-shadow: 0 2px 8px rgba(0,123,255,0.10);
-    border: 1.5px solid #3a8dde;
-  }
-  #send-btn {
-    background: var(--chat-btn-gradient);
-    border: none;
-    border-radius: 50%;
-    width: 44px;
-    height: 44px;
-    margin-left: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.2s, box-shadow 0.2s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  }
-  #send-btn:hover {
-    background: var(--chat-btn-hover);
-    box-shadow: 0 4px 16px rgba(0,123,255,0.12);
-  }
-  @media (max-width: 600px) {
-    #chat-window {
-      width: 98vw;
-      height: 80vh;
-      min-width: 0;
-      margin-bottom: 70px;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drive Mate AI Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
-    #gemini-chatbot {
-      right: 2vw;
-      bottom: 2vw;
+    header {
+      background: #161b22;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      z-index: 100;
     }
-    #chat-header {
-      font-size: 1rem;
-      padding: 0 10px;
+    header img {
+      height: 44px;
+    }
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    #chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      margin: 16px auto;
+      width: 100%;
+      max-width: 920px;
+      background: #161b22;
+      border-radius: 16px;
+      box-shadow: 0 0 0 1px #30363d, 0 8px 32px rgba(0,0,0,0.4);
     }
     #chat-messages {
-      padding: 10px 4px 8px 4px;
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      scrollbar-width: thin;
+      scroll-behavior: smooth;
+    }
+    .message {
+      max-width: 85%;
+      padding: 18px 24px;
+      border-radius: 20px;
+      line-height: 1.7;
+      font-size: 16px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+      transition: all 0.2s ease-in-out;
+    }
+    .user {
+      align-self: flex-end;
+      background: linear-gradient(to right, #1f6feb, #388bfd);
+      color: #ffffff;
+      border-bottom-right-radius: 6px;
+    }
+    .bot {
+      align-self: flex-start;
+      background: #21262d;
+      color: #e6edf3;
+      border-bottom-left-radius: 6px;
     }
     #chat-input {
-      padding: 6px 4px;
+      display: flex;
+      padding: 20px 28px;
+      background: #161b22;
+      border-top: 1px solid #30363d;
+      align-items: center;
+      gap: 14px;
     }
-  }
-</style>
-
-<script>
-  const chatBtn = document.getElementById("chat-button");
-  const chatWindow = document.getElementById("chat-window");
-  const sendBtn = document.getElementById("send-btn");
-  const messageBox = document.getElementById("message-box");
-  const chatMessages = document.getElementById("chat-messages");
-  const closeBtn = document.getElementById("close-chat");
-
-  // Open chat window with animation
-  chatBtn.onclick = () => {
-    chatWindow.style.display = chatWindow.style.display === "none" ? "flex" : "none";
-    if (chatWindow.style.display === "flex") {
-      setTimeout(() => messageBox.focus(), 200);
+    #message-box {
+      flex: 1;
+      padding: 14px 24px;
+      border-radius: 12px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #e6edf3;
+      font-size: 15px;
     }
-  };
-
-  // Close chat window
-  closeBtn.onclick = () => {
-    chatWindow.style.display = "none";
-  };
-
-  // Send message on button click or Enter
-  sendBtn.onclick = sendMessage;
-  messageBox.addEventListener("keydown", function(e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
+    #message-box:focus {
+      outline: none;
+      border-color: #1f6feb;
     }
-  });
-
-  function appendMessage(text, className) {
-    const div = document.createElement("div");
-    div.className = `chat-message ${className}`;
-    div.textContent = text;
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
-  async function sendMessage() {
-    const msg = messageBox.value.trim();
-    if (!msg) return;
-    appendMessage(msg, "user-msg");
-    messageBox.value = "";
-    const botDiv = document.createElement("div");
-    botDiv.className = "chat-message bot-msg typing";
-    botDiv.textContent = "Drive Mate is typing";
-    chatMessages.appendChild(botDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    try {
-      const res = await fetch("https://limo-flow-ai-chatbot-for-clients.onrender.com/api/gemini-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg })
-      });
-      const data = await res.json();
-      botDiv.classList.remove("typing");
-      botDiv.textContent = data.reply || "No response";
-    } catch (err) {
-      botDiv.classList.remove("typing");
-      botDiv.textContent = "⚠️ Error connecting to Gemini API.";
+    #send-btn {
+      background: linear-gradient(to right, #1f6feb, #388bfd);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(31,111,235,0.3);
+      transition: background 0.2s;
     }
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-</script>
+    #send-btn:hover {
+      background: #2563eb;
+    }
+    @media (max-width: 768px) {
+      #chat-container {
+        margin: 0;
+        border-radius: 0;
+        width: 100%;
+      }
+      #chat-messages {
+        padding: 24px 16px;
+      }
+      #chat-input {
+        padding: 14px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://www.limoflow.com/limoflow-logo.png" alt="Logo" />
+    <h1>Drive Mate</h1>
+  </header>
+
+  <div id="chat-container">
+    <div id="chat-messages"></div>
+    <div id="chat-input">
+      <input type="text" id="message-box" placeholder="Ask me anything..." autocomplete="off" />
+      <button id="send-btn"><i class="ri-send-plane-fill"></i></button>
+    </div>
+  </div>
+
+  <script>
+    const messages = document.getElementById('chat-messages');
+    const messageBox = document.getElementById('message-box');
+    const sendBtn = document.getElementById('send-btn');
+
+    sendBtn.onclick = sendMessage;
+    messageBox.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    function addMessage(content, type) {
+      const div = document.createElement('div');
+      div.className = `message ${type}`;
+      div.textContent = content;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const msg = messageBox.value.trim();
+      if (!msg) return;
+      addMessage(msg, 'user');
+      messageBox.value = '';
+      const botMsg = document.createElement('div');
+      botMsg.className = 'message bot';
+      botMsg.textContent = 'Drive Mate is typing...';
+      messages.appendChild(botMsg);
+      messages.scrollTop = messages.scrollHeight;
+
+      try {
+        const res = await fetch("https://limo-flow-ai-chatbot-for-clients.onrender.com/api/gemini-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: msg })
+        });
+        const data = await res.json();
+        botMsg.textContent = data.reply || "No response";
+      } catch (err) {
+        botMsg.textContent = "⚠️ Error connecting to Drive Mate API.";
+      }
+    }
+  </script>
+</body>
+</html>
